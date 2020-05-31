@@ -1,0 +1,1 @@
+KERNEL=="hidraw*", ATTRS{idVendor}=="1dd2", ATTRS{idProduct}=="2210", GROUP="usb"
