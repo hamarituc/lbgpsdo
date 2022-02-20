@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 #
 # Configuration Utility für Leo Bodnar GPSDO
@@ -32,6 +32,7 @@ import sys
 USBIDS = \
 [
     ( 0x1dd2, 0x2210 ),
+    ( 0x1dd2, 0x2211 ),
 ]
 
 
