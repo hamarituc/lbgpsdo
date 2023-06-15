@@ -238,14 +238,19 @@ class GPSDO(object):
             self.level = level
 
 
-    def asdict(self):
+    def asdict(self, ignore_freq_limits = False):
         """
         Returns the configuration as a dictionary.
 
         The returned dict can by use a argument for `update()` method to
         restore the settings.
 
-        The method raises an exception if the configuration is invalid.
+        The method raises an exception if the configuration is invalid. If
+        `ignore_freq_limits` is `True`, no error is raised if an intermediate
+        frequency exceeds the limits specified in the datasheet.
+
+        :param ignore_freq_limits: Ignore frequency limits defined in the datasheet.
+        :type ignore_freq_limits: bool
 
         :raises: :class:`GPSDOConfigurationException`: Invalid configuration
 
@@ -253,7 +258,7 @@ class GPSDO(object):
         :rtype: dict
         """
 
-        freq, errdict, errflag = self.freqplan()
+        freq, errdict, errflag = self.freqplan(ignore_freq_limits = ignore_freq_limits)
         if errflag:
             raise GPSDOConfigurationException({ a: v for a, v in errdict.items() if v is not None })
 
@@ -276,7 +281,7 @@ class GPSDO(object):
         return configdict
 
 
-    def freqplan(self, modify = False):
+    def freqplan(self, modify = False, ignore_freq_limits = False):
         """
         Returns the frequency plan.
 
@@ -299,6 +304,12 @@ class GPSDO(object):
 
         :param modifiy: Enable output 1.
         :type modifiy: bool
+
+        If `ignore_freq_limits` is `True`, no error is raised if an
+        intermediate frequency exceeds the limits specified in the datasheet.
+
+        :param ignore_freq_limits: Ignore frequency limits defined in the datasheet.
+        :type ignore_freq_limits: bool
 
         :raises: :class:`GPSDOConfigurationException`: Invalid configuration
 
@@ -355,6 +366,8 @@ class GPSDO(object):
             value = freq[attr]
             if value is None:
                 errdict[attr] = "%s undefined." % name
+            elif ignore_freq_limits:
+                errdict[attr] = None
             elif value < lmin or value > lmax:
                 errdict[attr] = "%s is %s, but %s." % ( name, self._format_freq(value), msg )
             else:
@@ -845,7 +858,7 @@ class GPSDODevice(GPSDO):
         return result
 
 
-    def write(self, overwrite = False):
+    def write(self, overwrite = False, ignore_freq_limits = False):
         """
         Write configuration to the device.
 
@@ -861,11 +874,17 @@ class GPSDODevice(GPSDO):
         :param overwrite: Force updating the configuration.
         :type overwrite: bool
 
+        If `ignore_freq_limits` is `True`, no error is raised if an
+        intermediate frequency exceeds the limits specified in the datasheet.
+
+        :param ignore_freq_limits: Ignore frequency limits defined in the datasheet.
+        :type ignore_freq_limits: bool
+
         :raises: :class:`GPSDOConfigurationException`: Invalid configuration
         """
 
         # Check settings.
-        freq, errdict, errflag = self.freqplan()
+        freq, errdict, errflag = self.freqplan(ignore_freq_limits = ignore_freq_limits)
 
         # Dont't upload invalid settings.
         if errflag:
@@ -1028,7 +1047,7 @@ def command_modify(args):
         d.update(**parser_get_config(args))
         sys.stdout.write(d.infotext(show_status = args.show_status, show_freq = args.show_freq))
         if not args.pretend:
-            d.write()
+            d.write(ignore_freq_limits = args.ignore_freq_limits)
     except GPSDOConfigurationException as e:
         sys.stdout.write("Parameter error:\n")
         sys.stdout.write(e.errortext())
@@ -1040,7 +1059,8 @@ def command_backup(args):
     try:
         d.read()
         sys.stdout.write(d.infotext(show_status = args.show_status, show_freq = args.show_freq))
-        json.dump(d.asdict(), args.output_file, indent = 2)
+        json.dump(d.asdict(ignore_freq_limits = args.ignore_freq_limits),
+                  args.output_file, indent = 2)
     except GPSDOConfigurationException as e:
         sys.stdout.write("Parameter error:\n")
         sys.stdout.write(e.errortext())
@@ -1053,7 +1073,7 @@ def command_restore(args):
         d.update(**json.load(args.input_file))
         sys.stdout.write(d.infotext(show_status = False, show_freq = args.show_freq))
         if not args.pretend:
-            d.write()
+            d.write(ignore_freq_limits = args.ignore_freq_limits)
     except GPSDOConfigurationException as e:
         sys.stdout.write("Parameter error:\n")
         sys.stdout.write(e.errortext())
@@ -1080,9 +1100,10 @@ def command_analyze(args):
         sys.stdout.write(d.infotext(show_status = False))
 
         if args.output_device:
-            d.write()
+            d.write(ignore_freq_limits = args.ignore_freq_limits)
         elif args.output_file:
-            json.dump(d.asdict(), args.output_file, indent = 2)
+            json.dump(d.asdict(ignore_freq_limits = args.ignore_freq_limits),
+                      args.output_file, indent = 2)
             
     except GPSDOConfigurationException as e:
         sys.stdout.write("Parameter error:\n")
@@ -1287,6 +1308,13 @@ def parser_add_show_freq(p):
         help = "Show frequency plan")
 
 
+def parser_add_ignore_freq_limits(p):
+    p.add_argument(
+        '--ignore-freq-limits',
+        action = 'store_true',
+        help = "Ignore frequency limits specified in the datasheet")
+
+
 def parser_get_config(args):
     result = {}
     for attr in [ 'fin', 'n3', 'n2_hs', 'n2_ls', 'n1_hs', 'nc1_ls', 'nc2_ls', 'skew', 'bw', 'out1', 'out2' ]:
@@ -1344,6 +1372,7 @@ parser_add_pretend(parser_modify)
 parser_add_show_status(parser_modify)
 parser_add_show_freq(parser_modify)
 parser_add_config(parser_modify)
+parser_add_ignore_freq_limits(parser_modify)
 parser_modify.set_defaults(func = command_modify)
 
 
@@ -1355,6 +1384,7 @@ parser_backup = subparsers.add_parser(
 parser_add_device(parser_backup)
 parser_add_show_status(parser_backup)
 parser_add_show_freq(parser_backup)
+parser_add_ignore_freq_limits(parser_backup)
 parser_add_output(parser_backup, required = True)
 parser_backup.set_defaults(func = command_backup)
 
@@ -1367,6 +1397,7 @@ parser_restore = subparsers.add_parser(
 parser_add_device(parser_restore)
 parser_add_pretend(parser_restore)
 parser_add_show_freq(parser_restore)
+parser_add_ignore_freq_limits(parser_restore)
 parser_add_input(parser_restore, required = True)
 parser_restore.set_defaults(func = command_restore)
 
@@ -1413,6 +1444,7 @@ parser_add_device(parser_analyze)
 parser_add_multiinput(parser_analyze)
 parser_add_multioutput(parser_analyze)
 parser_add_config(parser_analyze)
+parser_add_ignore_freq_limits(parser_analyze)
 parser_analyze.set_defaults(func = command_analyze)
 
 

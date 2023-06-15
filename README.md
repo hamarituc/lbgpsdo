@@ -316,6 +316,16 @@ fout1 = fosc / (N1_HS * NC1_LS)        = 450.000 Hz  ... 808.000 MHz
 fout2 = fosc / (N1_HS * NC2_LS)        = 450.000 Hz  ... 808.000 MHz
 ```
 
+Frequency Limit
+---------------
+
+The datasheet specifies limits for the intermediate frequenciens. However it
+was reported, the clock performs well even outside this limits. The parameter
+`--ignore-freq-limits` skips the internal checks of these limits whenever a
+configuration is written to the device or exported into a file (commands
+`modify`, `backup`, `restore`, `analyze`). The limit violations are still shown
+in the diagnostic output.
+
 Future plans
 ------------
 
