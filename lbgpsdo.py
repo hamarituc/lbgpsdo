@@ -93,7 +93,7 @@ class GPSDO(object):
     LIMIT_FIN_MAX = 16000000
 
     #  2 kHz .. 2 MHz according to table 26 in Si53xx family reference manual
-    # 10 kHz .. 2 MHz by triel
+    # 10 kHz .. 2 MHz by trial
     LIMIT_F3_MIN =   10000
     LIMIT_F3_MAX = 2000000
 
@@ -285,7 +285,7 @@ class GPSDO(object):
         """
         Returns the frequency plan.
 
-        Returns a dicitonary containing the output and intermediate frequencies
+        Returns a dictionary containing the output and intermediate frequencies
         for the current settings as well as phase relation between output 1 and
         output 2. If a value cannot be computed its entry is `None`.
 
@@ -299,11 +299,11 @@ class GPSDO(object):
         The last element of the returned tuple is an error flag. It is true if
         the frequency plan is invalid.
 
-        If `modified` is `True`, the method will set unused output dividers
+        If `modify` is `True`, the method will set unused output dividers
         to reasonable default values if they are undefined.
 
-        :param modifiy: Enable output 1.
-        :type modifiy: bool
+        :param modify: Enable output 1.
+        :type modify: bool
 
         If `ignore_freq_limits` is `True`, no error is raised if an
         intermediate frequency exceeds the limits specified in the datasheet.
@@ -325,8 +325,8 @@ class GPSDO(object):
             if not self.out2 and self.nc2_ls is None and self.out1:
                 self.nc2_ls = self.nc1_ls
 
-            # Use a divider value which is safe under any circumstances if no value
-            # is specified and both channels are disabled.
+            # Use a divider value which is safe under any circumstances if no
+            # value is specified and both channels are disabled.
             if not self.out1 and not self.out2:
                 if self.nc1_ls is None:
                     self.nc1_ls = 5670
