@@ -1280,6 +1280,7 @@ def parser_add_config(p):
         '--level',
         dest = 'level',
         metavar = 'CURRENT',
+        type = int,
         choices = [ 8, 16, 24, 32 ],
         help = "Output drive level in mA")
 
