@@ -26,6 +26,14 @@ To access the device you need access permission to the device file. Placing
 the file `99-lbgpsdo.rules` under `/etc/udev/rules.d` will ensure that your
 systems `usb` group has access to the device.
 
+If you do not already have a usb system group, you must create one and add your username to the group:
+
+`groupadd -r -U username usb` *(where username is your local username)*
+
+Then you will need to reboot for the changes to be applied. 
+
+
+
 Usage
 -----
 
