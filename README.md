@@ -1,26 +1,23 @@
-Leo Bodnar GPSDO Configuration Utility
-======================================
+# Leo Bodnar GPSDO Configuration Utility
 
 This is a command line utility to calculate, analyze, retriev and update the
 configuration of the Leo Bodnar GPSDO device.
 
-Installation
-------------
+## Installation
 
-You ne the python `hid` package. See https://github.com/apmorton/pyhidapi for
+You need the python `hid` package. See <https://github.com/apmorton/pyhidapi> for
 more information.
 
 If the package is not provided by your linux distribution you can create an
 virtual python environment.
 
-```sh
+```shell
 $ virtualenv DIRECTORY
 $ source DIRECTORY/bin/activate
 $ pip install -r requirements.txt
 ```
 
-Setup
------
+## Setup
 
 To access the device you need access permission to the device file. Placing
 the file `99-lbgpsdo.rules` under `/etc/udev/rules.d` will ensure that your
@@ -29,20 +26,19 @@ systems `usb` group has access to the device.
 If you do not already have a `usb` system group, you must create one and add
 your username to the group
 
-```
+```shell
 # groupadd -r -U ${USERNAME} usb
 ```
 
 where `${USERNAME}` is your local username. Then you will need to re-login for
 the changes to be applied.
 
-Usage
------
+## Usage
 
 The tool provides a set of subcommands for different tasks. Call it without
 specifying a subcommand to get a list of the available commands.
 
-```
+```shell
 $ ./lbgpsdo.py 
 usage: lbgpsdo.py [-h]
                   {list,l,status,s,detail,d,modify,m,backup,b,restore,r,identify,i,analyze,a,pll,p}
@@ -68,7 +64,7 @@ optional arguments:
 
 The `list` command shows all connected devices.
 
-```
+```shell
 $ ./lbgpsdo.py list
 1dd2:2210 /dev/hidraw0      G42610  GPS Reference Clock
 ```
@@ -80,7 +76,7 @@ the serial number of the GPSDO and the product string.
 
 The `status` command shows the status of all connected devices.
 
-```
+```shell
 $ ./lbgpsdo.py status
 G42610    /dev/hidraw0: SAT unlocked  PLL locked    Loss: 1
 ```
@@ -91,7 +87,7 @@ the number of instants where the satellite connection was lost.
 If more than one device is present, you can limit the list to specific devices
 by applying a filter based on the serial number or the device path.
 
-```
+```shell
 $ ./lbgpsdo.py status -s G42610
 G42610    /dev/hidraw0: SAT unlocked  PLL locked    Loss: 1
 ```
@@ -102,7 +98,7 @@ The `detail` command shows the configuration of a device. If more than one
 device is connected, you must select the proper device by it's serial number
 or device path.
 
-```
+```shell
 $ ./lbgpsdo.py detail
 Device information
 ------------------
@@ -158,13 +154,13 @@ Specifiy the parameters to alter on the command line.
 This command will set the Output channel 1 divider to 12 and disable Output
 channel 2.
 
-```
+```shell
 $ ./lbgpsdo.py modify --nc1-ls 12 --disable-out2
 ```
 
 To see the available parameters use the help feature of the command.
 
-```
+```shell
 Configuration:
   --fin HZ              GPS reference frequency
   --n3 N                Input divider factor
@@ -188,7 +184,7 @@ device.
 
 If you specify an invalid configuration an error is written out.
 
-```
+```shell
 $ ./lbgpsdo.py modify --nc1-ls 13 --disable-out2
 Parameter error:
 nc1_ls: Output 1 divider NC1_LS must be 1 or even.
@@ -198,13 +194,13 @@ nc1_ls: Output 1 divider NC1_LS must be 1 or even.
 
 You can save the configuration of a device by means of the `backup` command.
 
-```
+```shell
 $ ./lbgpsdo.py backup --output save.json
 ```
 
 It will produce a JSON file containing the configuration.
 
-```
+```shell
 {
   "out1": true,
   "out2": false,
@@ -225,7 +221,7 @@ You can even modifiy the file yourself with a text editor.
 
 To restore the configuration use the `restore` command.
 
-```
+```shell
 $ ./lbgpsdo.py restore --input save.json
 ```
 
@@ -233,24 +229,24 @@ $ ./lbgpsdo.py restore --input save.json
 
 The `identify` command let the channels LED blink. The channel must be enabled.
 
-```
+```shell
 $ ./lbgpsdo.py identify --out1
 ```
 
 Resume to normal operation by using the `--off` parameter.
 
-```
+```shell
 $ ./lbgpsdo.py identify --off
 ```
 
 ### Analyzing configurations
 
 Even without a GPSDO device connected you can prepare a configuration by means
-of the `analyze` command. The command computes the frequency plan base on the
+of the `analyze` command. The command computes the frequency plan based on the
 specified parameters. You don't have to start with a whole parameter set.
 Values which cannot be computed will be left undefined.
 
-```
+```shell
 $ ./lbgpsdo.py analyze --fin 5000000 --n3 5 --n2-hs 11 --n2-ls 450
 Output settings
 ---------------
@@ -291,7 +287,7 @@ fout1:  Output 1 frequency undefined.
 fout2:  Output 2 frequency undefined.
 ```
 
-You can load backup file with the `--input-file` parameter to initialize the
+You can load a backup file with the `--input-file` parameter to initialize the
 parameters before changes are applied. Although the command is designed to work
 without a device, you can load the configuration directly from a device using
 the `--input-device` parameter.
@@ -305,11 +301,11 @@ and `restore` commands.
 
 ### Miscellaneous
 
-The `pll` command shows a diagram of the PLL together with the contraints of
-the intermediate frequencies. It output just static text an doesn't acces
+The `pll` command shows a diagram of the PLL together with the constraints of
+the intermediate frequencies. It outputs just static text an doesn't acces
 any device.
 
-```
+```shell
 $ ./lbgpsdo.py pll
   fin          f3   +-------+                                       fout1  
 ------> ÷ N3 -----> |       |   fosc                 +-> ÷ NC1_LS -------->
@@ -326,8 +322,7 @@ fout1 = fosc / (N1_HS * NC1_LS)        = 450.000 Hz  ... 808.000 MHz
 fout2 = fosc / (N1_HS * NC2_LS)        = 450.000 Hz  ... 808.000 MHz
 ```
 
-Frequency Limit
----------------
+## Frequency Limit
 
 The datasheet specifies limits for the intermediate frequenciens. However it
 was reported, the clock performs well even outside this limits. The parameter
@@ -336,15 +331,13 @@ configuration is written to the device or exported into a file (commands
 `modify`, `backup`, `restore`, `analyze`). The limit violations are still shown
 in the diagnostic output.
 
-Future plans
-------------
+## Future plans
 
 It is planned to extend the tool by a `compute` command which determins all
-saettings from specified output frequencies.
+settings from specified output frequencies.
 
-Acknowledgements
-----------------
+## Acknowledgements
 
 Thanks to the Leo Bodnar techical support for providing details information.
-See https://github.com/simontheu/lb-gps-linux for an other configuration
+See <https://github.com/simontheu/lb-gps-linux> for another configuration
 utility.
