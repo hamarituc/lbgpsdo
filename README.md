@@ -7,13 +7,13 @@ configuration of the Leo Bodnar GPSDO device.
 Installation
 ------------
 
-You ne the python `hid` package. See https://github.com/apmorton/pyhidapi for
+You need the python `hid` package. See <https://github.com/apmorton/pyhidapi> for
 more information.
 
 If the package is not provided by your linux distribution you can create an
 virtual python environment.
 
-```sh
+```
 $ virtualenv DIRECTORY
 $ source DIRECTORY/bin/activate
 $ pip install -r requirements.txt
@@ -246,7 +246,7 @@ $ ./lbgpsdo.py identify --off
 ### Analyzing configurations
 
 Even without a GPSDO device connected you can prepare a configuration by means
-of the `analyze` command. The command computes the frequency plan base on the
+of the `analyze` command. The command computes the frequency plan based on the
 specified parameters. You don't have to start with a whole parameter set.
 Values which cannot be computed will be left undefined.
 
@@ -291,7 +291,7 @@ fout1:  Output 1 frequency undefined.
 fout2:  Output 2 frequency undefined.
 ```
 
-You can load backup file with the `--input-file` parameter to initialize the
+You can load a backup file with the `--input-file` parameter to initialize the
 parameters before changes are applied. Although the command is designed to work
 without a device, you can load the configuration directly from a device using
 the `--input-device` parameter.
@@ -305,8 +305,8 @@ and `restore` commands.
 
 ### Miscellaneous
 
-The `pll` command shows a diagram of the PLL together with the contraints of
-the intermediate frequencies. It output just static text an doesn't acces
+The `pll` command shows a diagram of the PLL together with the constraints of
+the intermediate frequencies. It outputs just static text an doesn't acces
 any device.
 
 ```
@@ -340,11 +340,11 @@ Future plans
 ------------
 
 It is planned to extend the tool by a `compute` command which determins all
-saettings from specified output frequencies.
+settings from specified output frequencies.
 
 Acknowledgements
 ----------------
 
 Thanks to the Leo Bodnar techical support for providing details information.
-See https://github.com/simontheu/lb-gps-linux for an other configuration
+See <https://github.com/simontheu/lb-gps-linux> for another configuration
 utility.
