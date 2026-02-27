@@ -26,6 +26,7 @@ import json
 import math
 import struct
 import sys
+import time
 
 
 
@@ -912,6 +913,12 @@ class GPSDODevice(GPSDO):
             update_config = True
             update_level = True
             update_output = True
+
+        # Debugging revealed, the device needs some delay after querying the
+        # configuration. Otherwise it's not ready to accept the new
+        # configuration and responds with a protocol error. We need to wait
+        # in any case, as the caller might recently queried the configuration.
+        time.sleep(0.01)
 
         # Upload PLL settings.
         if update_config:
