@@ -891,19 +891,30 @@ class GPSDODevice(GPSDO):
             raise GPSDOConfigurationException({ a: v for a, v in errdict.items() if v is not None })
 
         # Get current settings from device.
-        configdict = self.read(update = False)
+        if not overwrite:
+            configdict = self.read(update = False)
+            if self.fin    != configdict['fin']    or \
+               self.n3     != configdict['n3']     or \
+               self.n2_hs  != configdict['n2_hs']  or \
+               self.n2_ls  != configdict['n2_ls']  or \
+               self.n1_hs  != configdict['n1_hs']  or \
+               self.nc1_ls != configdict['nc1_ls'] or \
+               self.nc2_ls != configdict['nc2_ls'] or \
+               self.skew   != configdict['skew']   or \
+               self.bw     != configdict['bw']:
+                update_config = True
+            if self.level != configdict['level']:
+                update_level = True
+            if self.out1 != configdict['out1'] or \
+               self.out2 != configdict['out2']:
+                update_output = True
+        else:
+            update_config = True
+            update_level = True
+            update_output = True
 
         # Upload PLL settings.
-        if overwrite or \
-           (self.fin    != configdict['fin'])    or \
-           (self.n3     != configdict['n3'])     or \
-           (self.n2_hs  != configdict['n2_hs'])  or \
-           (self.n2_ls  != configdict['n2_ls'])  or \
-           (self.n1_hs  != configdict['n1_hs'])  or \
-           (self.nc1_ls != configdict['nc1_ls']) or \
-           (self.nc2_ls != configdict['nc2_ls']) or \
-           (self.skew   != configdict['skew'])   or \
-           (self.bw     != configdict['bw']):
+        if update_config:
             buf = 60 * [ 0 ]
             buf[0]     = 0 # Report ID must be zero
             buf[1]     = self._COMMAND_PLL
@@ -919,8 +930,7 @@ class GPSDODevice(GPSDO):
             self.device.send_feature_report(bytes(buf))
 
         # Upload drive level.
-        if overwrite or \
-           self.level != configdict['level']:
+        if update_level:
             buf = 60 * [ 0 ]
             buf[0] = 0 # Report ID must be zero
             buf[1] = self._COMMAND_LEVEL
@@ -928,9 +938,7 @@ class GPSDODevice(GPSDO):
             self.device.send_feature_report(bytes(buf))
 
         # Upload output settings.
-        if overwrite or \
-           self.out1 != configdict['out1'] or \
-           self.out2 != configdict['out2']:
+        if update_output:
             buf = 60 * [ 0 ]
             buf[0]  = 0 # Report ID must be zero
             buf[1]  = self._COMMAND_OUTPUT
