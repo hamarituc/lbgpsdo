@@ -905,24 +905,26 @@ class GPSDODevice(GPSDO):
            (self.skew   != configdict['skew'])   or \
            (self.bw     != configdict['bw']):
             buf = 60 * [ 0 ]
-            buf[0]     = self._COMMAND_PLL
-            buf[ 1: 4] = struct.pack("<I", self.fin       )[0:3]
-            buf[ 4: 7] = struct.pack("<I", self.n3     - 1)[0:3]
-            buf[ 7: 8] = struct.pack("<B", self.n2_hs  - 4)[0:1]
-            buf[ 8:11] = struct.pack("<I", self.n2_ls  - 1)[0:3]
-            buf[11:12] = struct.pack("<B", self.n1_hs  - 4)[0:1]
-            buf[12:15] = struct.pack("<I", self.nc1_ls - 1)[0:3]
-            buf[15:18] = struct.pack("<I", self.nc2_ls - 1)[0:3]
-            buf[18:19] = struct.pack("<B", self.skew      )[0:1]
-            buf[19:20] = struct.pack("<B", self.bw        )[0:1]
+            buf[0]     = 0 # Report ID must be zero
+            buf[1]     = self._COMMAND_PLL
+            buf[ 2: 5] = struct.pack("<I", self.fin       )[0:3]
+            buf[ 5: 8] = struct.pack("<I", self.n3     - 1)[0:3]
+            buf[ 8: 9] = struct.pack("<B", self.n2_hs  - 4)[0:1]
+            buf[ 9:12] = struct.pack("<I", self.n2_ls  - 1)[0:3]
+            buf[12:13] = struct.pack("<B", self.n1_hs  - 4)[0:1]
+            buf[13:16] = struct.pack("<I", self.nc1_ls - 1)[0:3]
+            buf[16:19] = struct.pack("<I", self.nc2_ls - 1)[0:3]
+            buf[19:20] = struct.pack("<B", self.skew      )[0:1]
+            buf[20:21] = struct.pack("<B", self.bw        )[0:1]
             self.device.send_feature_report(bytes(buf))
 
         # Upload drive level.
         if overwrite or \
            self.level != configdict['level']:
             buf = 60 * [ 0 ]
-            buf[0] = self._COMMAND_LEVEL
-            buf[1] = self.level
+            buf[0] = 0 # Report ID must be zero
+            buf[1] = self._COMMAND_LEVEL
+            buf[2] = self.level
             self.device.send_feature_report(bytes(buf))
 
         # Upload output settings.
@@ -930,9 +932,10 @@ class GPSDODevice(GPSDO):
            self.out1 != configdict['out1'] or \
            self.out2 != configdict['out2']:
             buf = 60 * [ 0 ]
-            buf[0]  = self._COMMAND_OUTPUT
-            buf[1] |= self.OUTPUT1 if self.out1 else 0
-            buf[1] |= self.OUTPUT2 if self.out2 else 0
+            buf[0]  = 0 # Report ID must be zero
+            buf[1]  = self._COMMAND_OUTPUT
+            buf[2] |= self.OUTPUT1 if self.out1 else 0
+            buf[2] |= self.OUTPUT2 if self.out2 else 0
             self.device.send_feature_report(bytes(buf))
 
 
@@ -949,8 +952,9 @@ class GPSDODevice(GPSDO):
         """
 
         buf = 60 * [ 0 ]
-        buf[0] = self._COMMAND_IDENTIFY
-        buf[1] = output
+        buf[0] = 0 # Report ID must be zero
+        buf[1] = self._COMMAND_IDENTIFY
+        buf[2] = output
         self.device.send_feature_report(bytes(buf))
 
 
