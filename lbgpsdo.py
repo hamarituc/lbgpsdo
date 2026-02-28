@@ -894,21 +894,21 @@ class GPSDODevice(GPSDO):
         # Get current settings from device.
         if not overwrite:
             configdict = self.read(update = False)
-            if self.fin    != configdict['fin']    or \
-               self.n3     != configdict['n3']     or \
-               self.n2_hs  != configdict['n2_hs']  or \
-               self.n2_ls  != configdict['n2_ls']  or \
-               self.n1_hs  != configdict['n1_hs']  or \
-               self.nc1_ls != configdict['nc1_ls'] or \
-               self.nc2_ls != configdict['nc2_ls'] or \
-               self.skew   != configdict['skew']   or \
-               self.bw     != configdict['bw']:
-                update_config = True
-            if self.level != configdict['level']:
-                update_level = True
-            if self.out1 != configdict['out1'] or \
-               self.out2 != configdict['out2']:
-                update_output = True
+
+            update_config = \
+                self.fin    != configdict['fin']    or \
+                self.n3     != configdict['n3']     or \
+                self.n2_hs  != configdict['n2_hs']  or \
+                self.n2_ls  != configdict['n2_ls']  or \
+                self.n1_hs  != configdict['n1_hs']  or \
+                self.nc1_ls != configdict['nc1_ls'] or \
+                self.nc2_ls != configdict['nc2_ls'] or \
+                self.skew   != configdict['skew']   or \
+                self.bw     != configdict['bw']
+            update_level = self.level != configdict['level']
+            update_output = \
+                self.out1 != configdict['out1'] or \
+                self.out2 != configdict['out2']
         else:
             update_config = True
             update_level = True
