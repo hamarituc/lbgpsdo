@@ -1,14 +1,21 @@
 Leo Bodnar GPSDO Configuration Utility
 ======================================
 
-This is a command line utility to calculate, analyze, retriev and update the
-configuration of the Leo Bodnar GPSDO device.
+This project provides a set of command line utilities to calculate, analyze,
+retrieve and update the configuration of Leo Bodnar GPSDO devices. The provided
+tools support the following devices:
+
+ * `lbgpsdo.py`
+   * Classic Leo Bodnar GPSDO
+   * Classic Leo Bodnar GPSDO mini
+ * `lbe142x.py`
+   * LBE-1421
 
 Installation
 ------------
 
-You need the python `hid` package. See <https://github.com/apmorton/pyhidapi> for
-more information.
+You need the python `hid` package. See <https://github.com/apmorton/pyhidapi>
+for more information.
 
 If the package is not provided by your linux distribution you can create an
 virtual python environment.
@@ -39,8 +46,8 @@ the changes to be applied.
 Usage
 -----
 
-The tool provides a set of subcommands for different tasks. Call it without
-specifying a subcommand to get a list of the available commands.
+The tools provide a set of subcommands for different tasks. Call them
+without specifying a subcommand to get a list of the available commands.
 
 ```
 $ ./lbgpsdo.py 
@@ -64,7 +71,98 @@ optional arguments:
   -h, --help            show this help message and exit
 ```
 
-### Listing devices
+### LBE-142x series
+
+#### Listing devices
+
+The `list` command shows all connected devices.
+
+```
+$ ./lbe142x.py list
+1dd2:2444 /dev/hidraw1      0C7BB80E7123  LBE-1421 GPSDO Locked Clock Source
+```
+
+The list contains the USB vendor and product IDs as well as the device path,
+the serial number of the GPSDO and the product string.
+
+#### Showing configuration
+
+The `detail` command shows the configuration of a device. If more than one
+device is connected, you must select the proper device by it's serial number
+or device path.
+
+```
+$ ./lbe142x.py detail
+Device information
+------------------
+VID, PID:     0x1dd2:0x2444
+Device:       /dev/hidraw1
+Product:      LBE-1421 GPSDO Locked Clock Source
+Manufacturer: Leo Bodnar Electronics
+S/N:          0C7BB80E7123
+Firmware:     1.9
+
+Device status
+-------------
+SAT lock:     LOCKED
+PLL lock:     LOCKED
+Antenna:      OK
+Mode:         PLL
+
+Output settings
+---------------
+Output 1:      10000000 Hz  level: NORMAL
+Output 2:      25000000 Hz  level: NORMAL
+```
+
+#### Modify configuration
+
+You can alter the configuration of a device by means of the `modify` command.
+Specifiy the parameters to alter on the command line.
+
+This command will set the Output channel to a frequency of 10MHz and channel 2
+to 25MHz.
+
+```
+$ ./lbgpsdo.py modify --f1 10000000 --f2 25000000
+```
+
+To see the available parameters use the help feature of the command.
+
+```
+Configuration:
+  --f1 HZ            Output 1 frequency
+  --f2 HZ            Output 2 frequency
+  --save             Save frequency to flash memory
+  --pll              Set PLL mode
+  --fll              Set FLL mode
+  --enable1          Enable output 1
+  --disable1         Disable output 1
+  --pps-enable       Enable PPS signal on output 1
+  --pps-disable      Enable PPS signal on output 1
+  --level1-low       Output 1 drive low level
+  --level1-normal    Output 1 drive normal level
+  --enable2          Enable output 2
+  --disable2         Disable output 2
+  --level2-low       Output 2 drive low level
+  --level2-normal    Output 2 drive normal level
+```
+
+#### Identify device
+
+The `identify` command let the channels LEDs blink to identify the device.
+
+```
+$ ./lbe142x.py identify
+```
+
+### Classic GPSDO
+
+Configuring the classic Leo Bodnar GPSDO requires a detailed unterstanding of
+the internal PLL and the contraints for the different intermediate frequencies
+and dividers.
+
+#### Listing devices
 
 The `list` command shows all connected devices.
 
@@ -76,7 +174,7 @@ $ ./lbgpsdo.py list
 The list contains the USB vendor and product IDs as well as the device path,
 the serial number of the GPSDO and the product string.
 
-### Showing status
+#### Showing status
 
 The `status` command shows the status of all connected devices.
 
@@ -96,7 +194,7 @@ $ ./lbgpsdo.py status -s G42610
 G42610    /dev/hidraw0: SAT unlocked  PLL locked    Loss: 1
 ```
 
-### Showing configuration
+#### Showing configuration
 
 The `detail` command shows the configuration of a device. If more than one
 device is connected, you must select the proper device by it's serial number
@@ -150,7 +248,7 @@ pres   =          5/   3 ns =      1.667 ns     Phase offset resolution
        =          6/   1 °  =      6.000 °
 ```
 
-### Modify configuration
+#### Modify configuration
 
 You can alter the configuration of a device by means of the `modify` command.
 Specifiy the parameters to alter on the command line.
@@ -194,7 +292,7 @@ Parameter error:
 nc1_ls: Output 1 divider NC1_LS must be 1 or even.
 ```
 
-### Backup and restore configuration
+#### Backup and restore configuration
 
 You can save the configuration of a device by means of the `backup` command.
 
@@ -229,7 +327,7 @@ To restore the configuration use the `restore` command.
 $ ./lbgpsdo.py restore --input save.json
 ```
 
-### Identify channels
+#### Identify channels
 
 The `identify` command let the channels LED blink. The channel must be enabled.
 
@@ -243,7 +341,7 @@ Resume to normal operation by using the `--off` parameter.
 $ ./lbgpsdo.py identify --off
 ```
 
-### Analyzing configurations
+#### Analyzing configurations
 
 Even without a GPSDO device connected you can prepare a configuration by means
 of the `analyze` command. The command computes the frequency plan based on the
@@ -303,7 +401,7 @@ an write to the same device.
 The `analyze` command is thus a more general version of the `modify`, `backup`
 and `restore` commands.
 
-### Miscellaneous
+#### Miscellaneous
 
 The `pll` command shows a diagram of the PLL together with the constraints of
 the intermediate frequencies. It outputs just static text an doesn't acces
@@ -326,8 +424,7 @@ fout1 = fosc / (N1_HS * NC1_LS)        = 450.000 Hz  ... 808.000 MHz
 fout2 = fosc / (N1_HS * NC2_LS)        = 450.000 Hz  ... 808.000 MHz
 ```
 
-Frequency Limit
----------------
+### Frequency Limit
 
 The datasheet specifies limits for the intermediate frequenciens. However it
 was reported, the clock performs well even outside this limits. The parameter
@@ -336,8 +433,7 @@ configuration is written to the device or exported into a file (commands
 `modify`, `backup`, `restore`, `analyze`). The limit violations are still shown
 in the diagnostic output.
 
-Future plans
-------------
+### Future plans
 
 It is planned to extend the tool by a `compute` command which determins all
 settings from specified output frequencies.
@@ -346,5 +442,10 @@ Acknowledgements
 ----------------
 
 Thanks to the Leo Bodnar techical support for providing details information.
-See <https://github.com/simontheu/lb-gps-linux> for another configuration
-utility.
+See
+
+ * <https://github.com/simontheu/lb-gps-linux>
+ * <https://github.com/simontheu/lbe-1420>
+ * <https://github.com/bvernoux/lbe-142x>
+
+for further configuration utilities.
