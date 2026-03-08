@@ -106,7 +106,7 @@ or device path.
 $ ./lbgpsdo.py detail
 Device information
 ------------------
-VID, PID:     0x2210:0x1dd2
+VID, PID:     0x1dd2:0x2210
 Device:       /dev/hidraw0
 Product:      GPS Reference Clock
 Manufacturer: Leo Bodnar

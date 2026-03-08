@@ -993,7 +993,7 @@ class GPSDODevice(GPSDO):
         if show_status:
             result += "Device information\n"
             result += "------------------\n"
-            result += "VID, PID:     0x%04x:0x%04x\n" % ( self.pid, self.vid )
+            result += "VID, PID:     0x%04x:0x%04x\n" % ( self.vid, self.pid )
             result += "Device:       %s\n"            % self.path
             result += "Product:      %s\n"            % self.product
             result += "Manufacturer: %s\n"            % self.manufacturer
