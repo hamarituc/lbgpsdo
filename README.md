@@ -124,7 +124,7 @@ This command will set the Output channel to a frequency of 10MHz and channel 2
 to 25MHz.
 
 ```
-$ ./lbgpsdo.py modify --f1 10000000 --f2 25000000
+$ ./lbe142x.py modify --f1 10000000 --f2 25000000
 ```
 
 To see the available parameters use the help feature of the command.
